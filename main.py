@@ -1,6 +1,6 @@
 import os
 import subprocess
-alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'y', 'z']
 alphabet_bool = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 declare_fun = []
 help_num = 0
@@ -191,7 +191,7 @@ if __name__ == '__main__':
     f.write("(define-fun arc_greater ((a Int) (b Int)) Bool (ite (and (= a -1) (= b -1) ) true (> a b)))\n")
     for i in range(len(alphabet_bool)):
         if alphabet_bool[i] == 1:
-            f.write("(assert (> " + alphabet[i] + "11" + " -1))" + "\n")
+            f.write("(assert (or (> " + alphabet[i] + "11" + " -1) (and (= " + alphabet[i] +"11 0) (= " + alphabet[i] +"1 0) ) ) )" + "\n")
             f.write("(assert (> " + alphabet[i] + "1" + " -1))" + "\n")
 
             f.write("(assert (>= " + alphabet[i] + "12" + " -1))" + "\n")
@@ -208,4 +208,5 @@ if __name__ == '__main__':
 
     os.system('z3 -smt2 lab1.smt2 > output.txt')
     out = subprocess.run('z3 -smt2 lab1.smt2', stdout=subprocess.PIPE , encoding='utf-8' )
+    print(alphabet_bool)
     out.stdout
