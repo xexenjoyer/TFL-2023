@@ -219,7 +219,5 @@ if __name__ == '__main__':
             break
 
     f.write("(check-sat)\n(get-model)\n(exit)")
-
+    f.close()
     os.system('z3 -smt2 lab1.smt2 > output.txt')
-    out = subprocess.run('z3 -smt2 lab1.smt2', stdout=subprocess.PIPE , encoding='utf-8' )
-    out.stdout
