@@ -1,5 +1,7 @@
 import os
 import subprocess
+import sys
+
 alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'y', 'z']
 alphabet_bool = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 declare_fun = []
@@ -31,7 +33,6 @@ def parser(exp):
             open_num += 1
             remember_num.append(open_num)
             remember_litera.append(alphabet[temporary_num])
-            declare_fun.append(exp[i])
 
         if exp[i] != "(" and exp[i] != ")" and exp[i + 1] == ")":
             ans += exp[i] + " "
@@ -169,44 +170,56 @@ def makesolution(list1, list2, list3, list4):
 
 
 if __name__ == '__main__':
-    print("Пример ввода: f(g(x))=g(x)")
-    exp = input().split("=")
-    left = parser(exp[0])
-    right = parser(exp[1])
-    print(left)
-    print(right)
-    xleft, freeleft, xright, freeright = makesolution(xcoeff(left), freecoeff(left), xcoeff(right), freecoeff(right))
     f = open("lab1.smt2", "w")
-    f.write("(set-logic QF_NIA)"+"\n")
-    for i in range (len(alphabet_bool)):
-        if alphabet_bool[i]== 1:
-            f.write("(declare-fun " + alphabet[i] +"11" + " () Int)"+"\n")
-            f.write("(declare-fun " + alphabet[i] + "12" + " () Int)" + "\n")
-            f.write("(declare-fun " + alphabet[i] + "21" + " () Int)" + "\n")
-            f.write("(declare-fun " + alphabet[i] + "22" + " () Int)" + "\n")
-            f.write("(declare-fun " + alphabet[i] + "1" + " () Int)" + "\n")
-            f.write("(declare-fun " + alphabet[i] + "2" + " () Int)" + "\n")
+    f.write("(set-logic QF_NIA)" + "\n")
     f.write("(define-fun arc_max ((a Int) (b Int)) Int (ite (>= a b) a b))\n")
     f.write("(define-fun arc_plus ((a Int) (b Int)) Int (ite (or (= a -1) (= b -1)) -1 (+ a b) ) )\n")
     f.write("(define-fun arc_greater ((a Int) (b Int)) Bool (ite (and (= a -1) (= b -1) ) true (> a b)))\n")
-    for i in range(len(alphabet_bool)):
-        if alphabet_bool[i] == 1:
-            f.write("(assert (or (> " + alphabet[i] + "11" + " -1) (and (= " + alphabet[i] +"11 0) (= " + alphabet[i] +"1 0) ) ) )" + "\n")
-            f.write("(assert (> " + alphabet[i] + "1" + " -1))" + "\n")
+    print("Пример ввода: f(g(x))=g(x)")
+    exp=""
+    while True:
+        exp = input().split("=")
+        if len(exp) != 1:
+            print(len(exp))
+            left = parser(exp[0])
+            right = parser(exp[1])
+            print(left)
+            print(right)
+            xleft, freeleft, xright, freeright = makesolution(xcoeff(left), freecoeff(left), xcoeff(right),
+                                                              freecoeff(right))
+            for i in range(len(alphabet_bool)):
+                if alphabet_bool[i] == 1:
+                    alphabet_bool[i] = 2
+                    f.write("(declare-fun " + alphabet[i] + "11" + " () Int)" + "\n")
+                    f.write("(declare-fun " + alphabet[i] + "12" + " () Int)" + "\n")
+                    f.write("(declare-fun " + alphabet[i] + "21" + " () Int)" + "\n")
+                    f.write("(declare-fun " + alphabet[i] + "22" + " () Int)" + "\n")
+                    f.write("(declare-fun " + alphabet[i] + "1" + " () Int)" + "\n")
+                    f.write("(declare-fun " + alphabet[i] + "2" + " () Int)" + "\n")
+            for i in range(len(alphabet_bool)):
+                if alphabet_bool[i] == 2:
+                    alphabet_bool[i] = 0
+                    f.write(
+                        "(assert (or (> " + alphabet[i] + "11" + " -1) (and (= " + alphabet[i] + "11 0) (= " + alphabet[
+                            i] + "1 0) ) ) )" + "\n")
+                    f.write("(assert (> " + alphabet[i] + "1" + " -1))" + "\n")
 
-            f.write("(assert (>= " + alphabet[i] + "12" + " -1))" + "\n")
-            f.write("(assert (>= " + alphabet[i] + "21" + " -1))" + "\n")
-            f.write("(assert (>= " + alphabet[i] + "22" + " -1))" + "\n")
-            f.write("(assert (>= " + alphabet[i] + "2" + " -1))" + "\n")
-    f.write("(assert (arc_greater " + xleft[0][0] + " " + xright[0][0] + "))\n")
-    f.write("(assert (arc_greater " + xleft[0][1] + " " + xright[0][1] + "))\n")
-    f.write("(assert (arc_greater " + xleft[1][0] + " " + xright[1][0] + "))\n")
-    f.write("(assert (arc_greater " + xleft[1][1] + " " + xright[1][1] + "))\n")
-    f.write("(assert (arc_greater " + freeleft[0] + " " + freeright[0] + "))\n")
-    f.write("(assert (arc_greater " + freeleft[1] + " " + freeright[1] + "))\n")
+                    f.write("(assert (>= " + alphabet[i] + "12" + " -1))" + "\n")
+                    f.write("(assert (>= " + alphabet[i] + "21" + " -1))" + "\n")
+                    f.write("(assert (>= " + alphabet[i] + "22" + " -1))" + "\n")
+                    f.write("(assert (>= " + alphabet[i] + "2" + " -1))" + "\n")
+
+            f.write("(assert (arc_greater " + xleft[0][0] + " " + xright[0][0] + "))\n")
+            f.write("(assert (arc_greater " + xleft[0][1] + " " + xright[0][1] + "))\n")
+            f.write("(assert (arc_greater " + xleft[1][0] + " " + xright[1][0] + "))\n")
+            f.write("(assert (arc_greater " + xleft[1][1] + " " + xright[1][1] + "))\n")
+            f.write("(assert (arc_greater " + freeleft[0] + " " + freeright[0] + "))\n")
+            f.write("(assert (arc_greater " + freeleft[1] + " " + freeright[1] + "))\n")
+        else:
+            break
+
     f.write("(check-sat)\n(get-model)\n(exit)")
 
     os.system('z3 -smt2 lab1.smt2 > output.txt')
     out = subprocess.run('z3 -smt2 lab1.smt2', stdout=subprocess.PIPE , encoding='utf-8' )
-    print(alphabet_bool)
     out.stdout
